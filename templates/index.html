@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
         :root {
@@ -46,6 +47,23 @@
             letter-spacing: -2px;
         }
 
+        .alert-custom {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 16px;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
         /* Smooth Upload Area */
         .upload-wrapper {
             position: relative;
@@ -60,6 +78,11 @@
             border-color: var(--accent);
             background: rgba(0, 247, 255, 0.02);
             transform: translateY(-2px);
+        }
+
+        .upload-wrapper.dragover {
+            border-color: var(--accent);
+            background: rgba(0, 247, 255, 0.05);
         }
 
         .btn-analyze {
@@ -78,6 +101,11 @@
         .btn-analyze:hover {
             box-shadow: 0 0 30px rgba(0, 247, 255, 0.4);
             transform: scale(1.02);
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         /* Image Display Styling */
@@ -130,6 +158,16 @@
         .contact-link i {
             margin-right: 8px;
         }
+
+        @media (max-width: 768px) {
+            .main-card {
+                padding: 30px;
+            }
+            
+            .display-3 {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -146,20 +184,36 @@
                     </p>
                 </div>
 
+                <!-- Error Message -->
+                {% if error %}
+                <div class="alert alert-custom alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {{ error }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
                 <div class="row justify-content-center mb-5">
                     <div class="col-lg-6">
-                        <form method="POST" enctype="multipart/form-data" class="upload-wrapper text-center">
+                        <form method="POST" enctype="multipart/form-data" class="upload-wrapper text-center" id="uploadForm">
                             <div class="mb-4">
-                                <i class="fas fa-microscope fa-3xl mb-3" style="color: var(--accent); font-size: 3rem;"></i>
+                                <i class="fas fa-microscope mb-3" style="color: var(--accent); font-size: 3rem;"></i>
                                 <h4 class="fw-bold">Upload CT Scan</h4>
-                                <p class="text-muted small">Select a grayscale PNG/JPG image</p>
+                                <p class="text-muted small">Select a grayscale PNG/JPG image (Max 50MB)</p>
                             </div>
                             
-                            <input type="file" name="image_file" class="form-control mb-4 bg-transparent text-white border-secondary" required>
+                            <input type="file" name="image_file" id="imageFile" class="form-control mb-4 bg-transparent text-white border-secondary" accept=".png,.jpg,.jpeg" required>
                             
-                            <button type="submit" class="btn-analyze">
+                            <button type="submit" class="btn-analyze" id="submitBtn">
                                 <i class="fas fa-brain me-2"></i> Run Inference
                             </button>
+
+                            <div class="loading-spinner" id="loadingSpinner">
+                                <div class="spinner-border text-info" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="text-muted mt-3">Processing... This may take a minute</p>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -209,5 +263,44 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const uploadForm = document.getElementById('uploadForm');
+    const imageFile = document.getElementById('imageFile');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const uploadWrapper = document.querySelector('.upload-wrapper');
+
+    // Drag and Drop
+    uploadWrapper.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadWrapper.classList.add('dragover');
+    });
+
+    uploadWrapper.addEventListener('dragleave', () => {
+        uploadWrapper.classList.remove('dragover');
+    });
+
+    uploadWrapper.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadWrapper.classList.remove('dragover');
+        imageFile.files = e.dataTransfer.files;
+    });
+
+    // Form Submit
+    uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        if (imageFile.files.length === 0) {
+            alert('Please select an image');
+            return;
+        }
+
+        // Show loading
+        submitBtn.disabled = true;
+        loadingSpinner.classList.add('active');
+
+        uploadForm.submit();
+    });
+</script>
 </body>
 </html>
