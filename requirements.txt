@@ -3,3 +3,4 @@ gunicorn
 tensorflow-cpu
 opencv-python-headless
 numpy
+requests
