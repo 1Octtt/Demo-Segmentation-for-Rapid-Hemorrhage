@@ -1,48 +1,8 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Model files (ใหญ่มาก)
-*.h5
-*.pb
-model_final_*.h5
-
-# Virtual Environment
-venv/
-env/
-ENV/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Render
-.render/
-
-# Uploads
-static/uploads/*
-!static/uploads/.gitkeep
-
-# Environment
-.env
-.env.local
+Flask==3.0.0
+numpy==1.26.4
+opencv-python==4.9.0.80
+requests==2.31.0
+tensorflow==2.15.0
+Werkzeug==3.0.1
+gunicorn==22.0.0
+Pillow==10.1.0
